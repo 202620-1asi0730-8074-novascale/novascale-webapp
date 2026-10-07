@@ -42,7 +42,6 @@ function send() {
   <div class="page-heading">
     <div><h1>{{ t('conversations') }}</h1></div>
   </div>
-
   <div class="conversation-selector">
     <label>{{ t('contact') }}
       <select v-model="store.activeContactId">
@@ -50,7 +49,6 @@ function send() {
       </select>
     </label>
   </div>
-
   <div v-if="contact" class="conversation-layout">
     <aside class="panel contact-detail">
       <UserAvatar :name="contact.name" size="xl" />
@@ -66,7 +64,6 @@ function send() {
         <div><h2>{{ contact.name }}</h2><p class="chat-contact-status"><span class="status-dot green"></span>{{ contact.company }}</p></div>
         <span v-if="contact.priority === 'Alta' || contact.priority === 'High'" class="badge red chat-priority">{{ t('highPriority') }}</span>
       </div>
-
       <div ref="feed" class="chat-feed">
         <div v-if="!store.messages.length" class="empty-state">
           <p>{{ t('noMessages') }}</p>
@@ -75,7 +72,6 @@ function send() {
           <div class="message-stack"><div class="message-bubble"><p>{{ message.text }}</p></div><small v-if="message.time">{{ message.time }}</small></div>
         </div>
       </div>
-
       <form class="message-composer" @submit.prevent="send">
         <label class="message-input"><input v-model="draft" :placeholder="t('writeMessage')" /></label>
         <button class="button primary" type="submit">{{ t('send') }}</button>
