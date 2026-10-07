@@ -1,0 +1,385 @@
+{
+  "users": [
+    {
+      "id": "u3",
+      "name": "Sergio",
+      "email": "sergio@novaleads.test",
+      "company": "NovaScale",
+      "role": "Vendedor",
+      "quota": 50000,
+      "phone": "",
+      "plan": "Demo",
+      "tags": [
+        "Leads"
+      ],
+      "passwordHash": "1cab685f032de1ef311bbe3896b1049c:da29d60a94015579c02c49a27fb69ae6093f93b094cac54976a508c5de1f0ff7d35833493b7a4735e9f2a4abf247780880f2e5b9507b9864a39993504470e334"
+    },
+    {
+      "id": "u4",
+      "name": "Darío",
+      "email": "dario@novaleads.test",
+      "company": "NovaScale",
+      "role": "Vendedor",
+      "quota": 50000,
+      "phone": "",
+      "plan": "Demo",
+      "tags": [
+        "Leads"
+      ],
+      "passwordHash": "a76221a8711b594dfb174c8749f56307:3e6cf3c3fcdfc24032e8957cab1d7b0c1ac5a7226865d39edfef677f9f56aee999e4c2ebe3deee441436b26fd9e9c915a7dbd85196fbb0323d463df5fe41f654"
+    },
+    {
+      "id": "u5",
+      "name": "Renzo",
+      "email": "renzo@novaleads.test",
+      "company": "NovaScale",
+      "role": "Vendedor",
+      "quota": 50000,
+      "phone": "",
+      "plan": "Demo",
+      "tags": [
+        "Leads"
+      ],
+      "passwordHash": "afb7ecd38cfe9c02106fce2806d9176b:5a6ed567adffc332abbc4b8c79bd25497c059ac4bce044542f0b0ec0fbf0dc64572493f4048978cd5e5b3b0673f06205db0ffb7367b18bdb1ba73636cbcbf004"
+    },
+    {
+      "id": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "name": "Sergio",
+      "company": "NovaLeads",
+      "email": "s@novaleads.com",
+      "passwordHash": "db4867d909a94eaa996f0a384bc505a6:6d3866ca5a97266d0090037e7c559c9bf704cb346cad5ea1210e9e86ece272ee019120d1be03a9fadf55e731f893e93e90e8deac36bb0814889121718401f1b9",
+      "role": "Vendedor",
+      "quota": 0,
+      "plan": "Demo",
+      "phone": "",
+      "tags": []
+    }
+  ],
+  "contacts": [
+    {
+      "id": "demo-sergio",
+      "name": "Mateo Cruz",
+      "company": "Soluciones Norte",
+      "email": "mateo@norte.test",
+      "type": "lead",
+      "stage": "contacted",
+      "value": 18000,
+      "ownerId": "u3",
+      "owner": "Sergio",
+      "source": "Demostración",
+      "priority": "Media",
+      "tags": [
+        "Demo"
+      ]
+    },
+    {
+      "id": "demo-dario",
+      "name": "Valeria Rojas",
+      "company": "Punto Sur",
+      "email": "valeria@puntosur.test",
+      "type": "lead",
+      "stage": "proposal",
+      "value": 24000,
+      "ownerId": "u4",
+      "owner": "Darío",
+      "source": "Demostración",
+      "priority": "Media",
+      "tags": [
+        "Demo"
+      ]
+    },
+    {
+      "id": "demo-renzo",
+      "name": "Bruno Vega",
+      "company": "Costa Digital",
+      "email": "bruno@costa.test",
+      "type": "customer",
+      "stage": "won",
+      "value": 15000,
+      "ownerId": "u5",
+      "owner": "Renzo",
+      "source": "Demostración",
+      "priority": "Media",
+      "tags": [
+        "Demo"
+      ]
+    },
+    {
+      "id": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "name": "Juan",
+      "company": "NovaSulf",
+      "email": "juan@novasulf",
+      "value": 1000,
+      "stage": "won",
+      "type": "customer",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "owner": "Sergio",
+      "phone": "",
+      "priority": "Media",
+      "tags": []
+    },
+    {
+      "id": "0f363618-75ac-4a6c-b791-8c58decd1f84",
+      "name": "Theo",
+      "company": "stockplus",
+      "email": "theo@stockplus.com",
+      "value": 100000,
+      "stage": "won",
+      "type": "customer",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "owner": "Sergio",
+      "phone": "",
+      "priority": "Media",
+      "tags": []
+    },
+    {
+      "id": "df89e2db-3db4-4a1b-9c20-1857688b4ad0",
+      "name": "elon musk",
+      "company": "spacex",
+      "email": "elon@spacex.com",
+      "value": 1000000000,
+      "stage": "new",
+      "type": "lead",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "owner": "Sergio"
+    }
+  ],
+  "activities": [
+    {
+      "id": "1490268c-f94d-4615-859e-02d7da7a649e",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "df89e2db-3db4-4a1b-9c20-1857688b4ad0",
+      "contactName": "elon musk",
+      "eventType": "lead_created",
+      "stage": "new",
+      "value": 1000000000,
+      "changes": [],
+      "createdAt": "2026-10-04T05:11:00.597Z"
+    },
+    {
+      "id": "e9840a8e-dfea-41a6-8149-aa0a9030ac5f",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "contactName": "Juan",
+      "eventType": "stage_changed",
+      "stage": "won",
+      "value": 1000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "contacted",
+          "to": "won"
+        }
+      ],
+      "createdAt": "2026-10-04T05:10:16.032Z"
+    },
+    {
+      "id": "347e730e-ed88-4645-a3af-6790eb4fecff",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "0f363618-75ac-4a6c-b791-8c58decd1f84",
+      "contactName": "Theo",
+      "eventType": "stage_changed",
+      "stage": "won",
+      "value": 100000,
+      "changes": [
+        {
+          "field": "type",
+          "from": "lead",
+          "to": "customer"
+        },
+        {
+          "field": "stage",
+          "from": "proposal",
+          "to": "won"
+        }
+      ],
+      "createdAt": "2026-10-04T05:10:13.823Z"
+    },
+    {
+      "id": "d0c999a1-ec7d-4fc8-82e0-5304fb317825",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "0f363618-75ac-4a6c-b791-8c58decd1f84",
+      "contactName": "Theo",
+      "eventType": "stage_changed",
+      "stage": "proposal",
+      "value": 100000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "contacted",
+          "to": "proposal"
+        }
+      ],
+      "createdAt": "2026-10-04T05:10:09.864Z"
+    },
+    {
+      "id": "8031c6a6-93d9-4e78-8ef4-33219b76e1cd",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "contactName": "Juan",
+      "eventType": "stage_changed",
+      "stage": "contacted",
+      "value": 1000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "new",
+          "to": "contacted"
+        }
+      ],
+      "createdAt": "2026-10-04T05:10:05.064Z"
+    },
+    {
+      "id": "7ce6de8a-2494-40d0-b630-42e0793d23a5",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "0f363618-75ac-4a6c-b791-8c58decd1f84",
+      "contactName": "Theo",
+      "eventType": "stage_changed",
+      "stage": "contacted",
+      "value": 100000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "new",
+          "to": "contacted"
+        }
+      ],
+      "createdAt": "2026-10-04T05:10:02.053Z"
+    },
+    {
+      "id": "99a80ef1-ec51-4d21-8ec3-17cb2eb7e9ec",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "0f363618-75ac-4a6c-b791-8c58decd1f84",
+      "contactName": "Theo",
+      "eventType": "lead_created",
+      "stage": "new",
+      "value": 100000,
+      "changes": [],
+      "createdAt": "2026-10-04T05:08:55.028Z"
+    },
+    {
+      "id": "7729ac45-3c36-438f-af04-0ea1f363f867",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "contactName": "Juan",
+      "eventType": "stage_changed",
+      "stage": "new",
+      "value": 1000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "won",
+          "to": "new"
+        }
+      ],
+      "createdAt": "2026-10-04T04:48:03.441Z"
+    },
+    {
+      "id": "0558235a-d432-46c8-a810-28a3f37fc842",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "contactName": "Juan",
+      "eventType": "stage_changed",
+      "stage": "won",
+      "value": 1000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "proposal",
+          "to": "won"
+        }
+      ],
+      "createdAt": "2026-10-04T04:48:00.642Z"
+    },
+    {
+      "id": "857dad5e-d3b6-476a-97de-fcb4bd85b266",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "contactName": "Juan",
+      "eventType": "stage_changed",
+      "stage": "proposal",
+      "value": 1000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "contacted",
+          "to": "proposal"
+        }
+      ],
+      "createdAt": "2026-10-04T04:47:58.373Z"
+    },
+    {
+      "id": "a5fdd49e-35c0-4964-8531-d2e6d54ddb30",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "contactName": "Juan",
+      "eventType": "stage_changed",
+      "stage": "contacted",
+      "value": 1000,
+      "changes": [
+        {
+          "field": "stage",
+          "from": "new",
+          "to": "contacted"
+        }
+      ],
+      "createdAt": "2026-10-04T04:47:55.875Z"
+    },
+    {
+      "id": "e14f3b32-ea12-429b-9969-e8dd978fc83c",
+      "ownerId": "9e317dfa-e8c3-4e94-99b0-84a9da2eecb8",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "contactName": "Juan",
+      "eventType": "customer_created",
+      "stage": "new",
+      "value": 1000,
+      "changes": [],
+      "createdAt": "2026-10-04T04:47:38.654Z"
+    },
+    {
+      "id": "demo-a-sergio",
+      "eventType": "lead_created",
+      "contactName": "Mateo Cruz",
+      "ownerId": "u3",
+      "icon": "users",
+      "color": "violet",
+      "title": "Lead de prueba",
+      "text": "Mateo Cruz fue asignado a Sergio.",
+      "time": "Dato de demostración",
+      "contactId": "demo-sergio"
+    },
+    {
+      "id": "demo-a-dario",
+      "eventType": "lead_created",
+      "contactName": "Valeria Rojas",
+      "ownerId": "u4",
+      "icon": "users",
+      "color": "violet",
+      "title": "Lead de prueba",
+      "text": "Valeria Rojas fue asignada a Darío.",
+      "time": "Dato de demostración",
+      "contactId": "demo-dario"
+    },
+    {
+      "id": "demo-a-renzo",
+      "eventType": "customer_created",
+      "contactName": "Bruno Vega",
+      "ownerId": "u5",
+      "icon": "award",
+      "color": "green",
+      "title": "Venta de prueba",
+      "text": "Bruno Vega fue asignado a Renzo.",
+      "time": "Dato de demostración",
+      "contactId": "demo-renzo"
+    }
+  ],
+  "messages": [
+    {
+      "id": "f3e3150d-8aaa-4513-8b19-f8d11adc7372",
+      "contactId": "fc0e8863-2ca0-4a7c-9c7e-e8662368e89f",
+      "text": "hola somos novaleads en que lo podemos ayudar?",
+      "sender_type": "out",
+      "sent_at": "12:09 a. m."
+    }
+  ]
+}
