@@ -1,10 +1,10 @@
 <script setup>
 import { computed, ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import UserAvatar from '../../../../../../Downloads/NovaLeads/src/shared/presentation/components/user-avatar.vue'
+import UserAvatar from '../../../shared/presentation/components/user-avatar.vue'
 import { useConversationsStore } from '../../application/conversations.store.js'
-import { useLeadsStore } from '../../../../../../Downloads/NovaLeads/src/leads/application/leads.store.js'
-import { useI18n, money } from '../../../../../../Downloads/NovaLeads/src/i18n.js'
+import { useLeadsStore } from '../../../leads/application/leads.store.js'
+import { useI18n, money } from '../../../i18n.js'
 
 const props = defineProps({ search: String })
 const store = useConversationsStore()

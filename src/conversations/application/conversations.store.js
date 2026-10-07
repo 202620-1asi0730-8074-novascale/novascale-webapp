@@ -1,9 +1,8 @@
 import { ref, reactive } from "vue";
 import { ConversationsApi } from "../infrastructure/conversations-api.js";
 import { MessageAssembler } from "../infrastructure/message.assembler.js";
-import { useLeadsStore } from "../../../../../Downloads/NovaLeads/src/leads/application/leads.store.js";
-import { useAuthenticationStore } from "../../../../../Downloads/NovaLeads/src/authentication/application/authentication.store.js";
-
+import { useLeadsStore } from "../../leads/application/leads.store.js";
+import { useAuthenticationStore } from "../../authentication/application/authentication.store.js";
 const api = new ConversationsApi();
 
 const store = (() => {

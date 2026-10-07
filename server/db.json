@@ -53,6 +53,18 @@
       "plan": "Demo",
       "phone": "",
       "tags": []
+    },
+    {
+      "name": "Jo",
+      "company": "Novaleads",
+      "email": "demo@novaleads.com",
+      "passwordHash": "b50bcef073849e69266c4bfacf73521c:00d2ae74c32bf2f513d92f73c5943469439f92210ed0b97bcc32e6cd2ebebd8001fb0b8dbf1df611880ec2db5470c68724fe68077f3d734e1784162691ef6d18",
+      "role": "Vendedor",
+      "quota": 0,
+      "plan": "Demo",
+      "phone": "",
+      "tags": [],
+      "id": "tSKEke9"
     }
   ],
   "contacts": [

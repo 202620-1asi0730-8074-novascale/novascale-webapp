@@ -1,5 +1,5 @@
-import { BaseApi } from '../../../../../Downloads/NovaLeads/src/shared/infrastructure/base-api.js'
-import { currentUserId, requireOwner, demoError } from '../../../../../Downloads/NovaLeads/src/authentication/infrastructure/demo-session.js'
+import { BaseApi } from '../../shared/infrastructure/base-api.js'
+import { currentUserId, requireOwner, demoError } from '../../authentication/infrastructure/demo-session.js'
 export class ConversationsApi extends BaseApi {
     async checkContact(contactId) {
         const { data } = await this.http.get('/contacts/' + encodeURIComponent(contactId))
