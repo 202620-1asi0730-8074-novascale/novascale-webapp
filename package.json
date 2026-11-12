@@ -8,12 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "api": "npm run server",
-    "server": "json-server --watch server/db.json --routes server/routes.json --port 3000 --host 0.0.0.0"
+    "server": "dotnet run --project ../novascale-platform/novascale-platform/novascale-platform.csproj --launch-profile http"
   },
   "dependencies": {
     "axios": "^1.6.8",
-    "json-server": "0.17.4",
-    "scrypt-js": "3.0.1",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },

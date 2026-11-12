@@ -14,7 +14,7 @@ const authStore = useAuthenticationStore()
 const router = useRouter()
 const { locale, t } = useI18n()
 
-const eventKeys = { lead_created: 'leadCreated', customer_created: 'customerCreated', contact_updated: 'contactUpdated', stage_changed: 'stageChanged', followupScheduled: 'followupScheduled', dealWon: 'dealWon' }
+const eventKeys = { contact_created: 'contactCreated', opportunity_updated: 'opportunityUpdated', lead_created: 'leadCreated', customer_created: 'customerCreated', contact_updated: 'contactUpdated', stage_changed: 'stageChanged', followupScheduled: 'followupScheduled', dealWon: 'dealWon' }
 function heading(item) { return eventKeys[item.eventType] ? t(eventKeys[item.eventType], { name: item.contactName }) : item.title }
 function time(item) { return item.createdAt ? new Intl.DateTimeFormat(locale.value === 'en' ? 'en-US' : 'es-PE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(item.createdAt)) : t('demoActivity') }
 

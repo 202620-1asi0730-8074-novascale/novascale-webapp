@@ -2,13 +2,12 @@
 import { computed } from 'vue'
 import ActivityFeed from '../components/activity-feed.vue'
 import MetricCard from '../components/metric-card.vue'
-import { useLeadsStore } from '../../../leads/application/leads.store.js'
+import { useDashboardStore } from '../../application/dashboard.store.js'
 import { money } from '../../../i18n.js'
 import { useI18n } from '../../../i18n.js'
 
-// Añadimos defineProps para evitar el warning amarillo
 defineProps({ search: String })
-const store = useLeadsStore()
+const store = useDashboardStore()
 const { t } = useI18n()
 </script>
 <template>
@@ -16,9 +15,9 @@ const { t } = useI18n()
     <div><h1>{{ t('results') }}</h1></div>
   </div>
   <div class="metrics-grid">
-    <MetricCard :label="t('wonRevenue')" :value="money(store.metrics.revenue)" icon="dollar" color="green" />
-    <MetricCard :label="t('openDeals')" :value="store.metrics.active" icon="pipeline" />
-    <MetricCard :label="t('conversion')" :value="`${store.metrics.conversion}%`" icon="trend" color="blue" />
+    <MetricCard :label="t('wonRevenue')" :value="money(store.summary.wonRevenue)" icon="dollar" color="green" />
+    <MetricCard :label="t('openDeals')" :value="store.summary.activeOpportunities" icon="pipeline" />
+    <MetricCard :label="t('conversion')" :value="`${store.summary.conversionRate}%`" icon="trend" color="blue" />
   </div>
   <div class="reports-grid">
     <section class="panel">
