@@ -1,5 +1,6 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
+import { apiErrorMessage } from '../../../shared/infrastructure/base-api.js'
 import { useRoute, useRouter } from 'vue-router'
 import UserAvatar from '../../../shared/presentation/components/user-avatar.vue'
 import { useAuthenticationStore } from '../../application/authentication.store.js'
@@ -15,6 +16,7 @@ const forgot = computed(() => route.name === 'forgot-password')
 const form = reactive({ name: '', company: '', email: '', password: '' })
 const errorMessage = ref('')
 const busy = ref(false)
+const showPassword = ref(false)
 const recoveryEmail = ref('')
 const recoveryRequested = ref(false)
 
@@ -26,7 +28,7 @@ async function submit() {
     else await store.signIn(form.email, form.password)
     await router.push('/dashboard')
   } catch (error) {
-    errorMessage.value = error.response?.status === 401 ? t('invalidCredentials') : error.response?.status === 409 ? t('emailExists') : error.response?.status === 400 ? t('invalidRegistration') : t('apiError')
+    errorMessage.value = apiErrorMessage(error)
   } finally {
     busy.value = false
   }
@@ -64,12 +66,12 @@ async function submit() {
       <div class="auth-form-container">
         <div class="language-switch"><button type="button" :class="{ active: locale === 'es' }" @click="setLocale('es')">ES</button><button type="button" :class="{ active: locale === 'en' }" @click="setLocale('en')">EN</button></div>
         <h1>{{ t(signup ? 'createAccount' : 'welcome') }}</h1>
-        <p class="auth-description">{{ t('authDescription') }}</p>
+        <p class="auth-description">{{ t(signup ? 'signupDescription' : 'authDescription') }}</p>
         <form class="form-stack" @submit.prevent="submit">
           <label v-if="signup">{{ t('name') }}<input v-model="form.name" required autocomplete="name" /></label>
           <label v-if="signup">{{ t('company') }}<input v-model="form.company" required autocomplete="organization" /></label>
           <label>{{ t('email') }}<input v-model="form.email" required type="email" autocomplete="email" /></label>
-          <label>{{ t('password') }}<input v-model="form.password" required type="password" minlength="8" :autocomplete="signup ? 'new-password' : 'current-password'" :placeholder="signup ? t('passwordHint') : ''" /></label>
+          <label>{{ t('password') }}<span class="password-input"><input v-model="form.password" :type="showPassword ? 'text' : 'password'" required minlength="8" :autocomplete="signup ? 'new-password' : 'current-password'" :placeholder="signup ? t('passwordHint') : ''" /><button type="button" :aria-label="t(showPassword ? 'hidePassword' : 'showPassword')" :aria-pressed="showPassword" @click="showPassword = !showPassword"><span class="ui-icon" :class="showPassword ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label>
           <div v-if="!signup" class="auth-form-options"><router-link class="text-link" to="/forgot-password">{{ t('forgotPassword') }}</router-link></div>
           <p v-if="errorMessage" class="auth-error" role="alert">{{ errorMessage }}</p>
           <button class="button primary full-width" type="submit" :disabled="busy">{{ busy ? t('wait') : t(signup ? 'createSpace' : 'login') }}</button>

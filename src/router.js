@@ -1,3 +1,4 @@
+import { isAuthenticated } from './authentication/infrastructure/session.js'
 import { createRouter, createWebHistory } from 'vue-router'
 import authenticationRoutes from './authentication/presentation/authentication-routes.js'
 import leadsRoutes from './leads/presentation/leads-routes.js'
@@ -8,8 +9,8 @@ import { useI18n } from './i18n.js'
 
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue')
 const { locale, t } = useI18n()
-const titleKeys = { login: 'login', signup: 'signup', 'forgot-password': 'recovery', settings: 'settings', dashboard: 'dashboard', reports: 'reports', leads: 'leads', customers: 'customers', pipeline: 'pipeline', conversations: 'conversations' }
-const titleFor = route => `${titleKeys[route.name] ? t(titleKeys[route.name]) : 'NovaLeads'} | NovaLeads`
+const titleKeys = { login: 'login', signup: 'signup', 'forgot-password': 'recovery', pricing: 'plans', 'not-found': 'notFoundTitle', settings: 'settings', dashboard: 'dashboard', reports: 'reports', leads: 'leads', customers: 'customers', pipeline: 'pipeline', conversations: 'conversations' }
+const titleFor = route => titleKeys[route.name] ? `${t(titleKeys[route.name])} | NovaLeads` : 'NovaLeads'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -24,8 +25,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     document.title = titleFor(to)
-    const isAuthenticated = Boolean(sessionStorage.getItem('novaleads.demoUserId'))
-    if (to.meta.requiresAuth && !isAuthenticated) next({ name: 'login' })
+    if (to.meta.requiresAuth && !isAuthenticated()) next({ name: 'login' })
     else next()
 })
 watch(locale, () => { document.title = titleFor(router.currentRoute.value) })
