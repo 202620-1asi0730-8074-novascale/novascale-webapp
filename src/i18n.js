@@ -18,4 +18,4 @@ function t(key, params = {}) {
 }
 export function useI18n() { return { locale, setLocale, t } }
 
-export const money = value => new Intl.NumberFormat(locale.value === 'en' ? 'en-US' : 'es-PE', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(value) || 0)
+export const money = value => new Intl.NumberFormat(locale.value === 'en' ? 'en-US' : 'es-PE', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(Number(value) || 0)

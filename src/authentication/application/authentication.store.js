@@ -1,5 +1,6 @@
 import { ref, reactive } from "vue";
 import { AuthenticationApi } from "../infrastructure/authentication-api.js";
+import { sessionKey, userIdKey, clearSession } from "../infrastructure/session.js";
 import { UserAssembler } from "../infrastructure/user.assembler.js";
 
 const authApi = new AuthenticationApi();
@@ -7,7 +8,7 @@ const authApi = new AuthenticationApi();
 const store = (() => {
     const users = ref([]);
     const profile = ref(null);
-    const sessionKey = 'novaleads.demoUserId';
+
 
     function fetchUsers() {
         return authApi.getUsers().then(response => {
@@ -16,10 +17,12 @@ const store = (() => {
         });
     }
 
-    function setSession({ user }) {
-        profile.value = user;
-        sessionStorage.setItem(sessionKey, String(user.id));
-        sessionStorage.setItem('novaleads.userId', String(user.id));
+    function setSession({ token, user }) {
+        users.value = [];
+        profile.value = { id: user.id, name: user.fullName, email: user.email, quota: user.quota, phone: user.phone };
+        sessionStorage.setItem(sessionKey, token);
+        sessionStorage.setItem(userIdKey, String(user.id));
+        window.dispatchEvent(new Event('novaleads:session-changed'));
     }
 
     async function fetchProfile() {
@@ -29,7 +32,7 @@ const store = (() => {
             profile.value = response.data;
             return profile.value;
         } catch (error) {
-            signOut();
+            if (error.response?.status === 401) signOut();
             throw error;
         }
     }
@@ -37,20 +40,20 @@ const store = (() => {
     async function signIn(email, password) {
         const response = await authApi.login(email.trim().toLowerCase(), password);
         setSession(response.data);
-        return response.data.user;
+        return await fetchProfile();
     }
 
     async function signUp({ name, company, email, password }) {
         const created = await authApi.register({ name: name.trim(), company: company.trim(), email: email.trim().toLowerCase(), password });
         setSession(created.data);
-        users.value.push(UserAssembler.toEntityFromResource(created.data.user));
-        return created.data.user;
+        return await fetchProfile();
     }
 
     async function updateProfile(changes) {
         if (!profile.value?.id) throw new Error('No hay una sesión activa.');
         const response = await authApi.updateUser(profile.value.id, changes);
         profile.value = response.data;
+        await fetchUsers();
         const index = users.value.findIndex(user => user.id === profile.value.id);
         if (index !== -1) users.value[index] = UserAssembler.toEntityFromResource(profile.value);
         return profile.value;
@@ -61,10 +64,10 @@ const store = (() => {
     }
 
     function signOut() {
-        if (sessionStorage.getItem(sessionKey)) authApi.logout().catch(() => {});
+
         profile.value = null;
-        sessionStorage.removeItem(sessionKey);
-        sessionStorage.removeItem('novaleads.userId');
+        users.value = [];
+        clearSession();
     }
 
     return reactive({ users, profile, fetchUsers, fetchProfile, signIn, signUp, updateProfile, changePassword, signOut });

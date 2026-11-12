@@ -7,6 +7,8 @@ import { useAuthenticationStore } from '../../../authentication/application/auth
 import { useConversationsStore } from '../../../conversations/application/conversations.store.js'
 import { useDashboardStore } from '../../../dashboard/application/dashboard.store.js'
 import { useI18n } from '../../../i18n.js'
+import { useUiStore } from '../../application/ui.store.js'
+import { apiErrorMessage } from '../../infrastructure/base-api.js'
 
 defineProps({ search: String })
 const emit = defineEmits(['update:search'])
@@ -40,7 +42,10 @@ function handleLogout() {
 }
 onMounted(async () => {
   try { await authStore.fetchProfile(); await leadsStore.fetchContacts() }
-  catch { router.push({ name: 'login' }) }
+  catch (error) {
+    if (error.response?.status === 401) router.push({ name: 'login' })
+    else useUiStore().notify(apiErrorMessage(error))
+  }
 })
 </script>
 <template>
@@ -75,7 +80,7 @@ onMounted(async () => {
         <div class="topbar-actions"><div class="language-switch"><button :class="{ active: locale === 'es' }" @click="setLocale('es')">ES</button><button :class="{ active: locale === 'en' }" @click="setLocale('en')">EN</button></div><button class="button primary add-lead-top" @click="addContact"><span class="ui-icon" aria-hidden="true" :class="'icon-' + ('plus')" :style="{ width: 18 + 'px', height: 18 + 'px' }"></span><span>{{ t(onCustomers ? 'addCustomer' : 'addLead') }}</span></button></div>
       </header>
       <main id="main-content" ref="main" class="main-content" tabindex="-1"><slot /></main>
-      <footer class="workspace-footer"><span>© 2026 NovaLeads</span><span><span class="status-dot green"></span>{{ t('localApi') }}</span></footer>
+      <footer class="workspace-footer"><span>© 2026 NovaLeads</span></footer>
     </div>
     <nav class="mobile-bottom-nav" :aria-label="t('workspace')">
       <router-link v-for="[path, icon, label] in bottomLinks" :key="path" :to="`/${path}`" :class="{ active: route.path === `/${path}` }" :aria-current="route.path === `/${path}` ? 'page' : undefined"><span class="ui-icon" aria-hidden="true" :class="'icon-' + (icon)" :style="{ width: '20px', height: '20px' }"></span><span>{{ t(label) }}</span></router-link>
