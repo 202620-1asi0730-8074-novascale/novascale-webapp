@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, ref, onMounted, watch } from 'vue'
+import { computed, reactive, ref, onMounted, watch, nextTick } from 'vue'
 import UserAvatar from '../../../shared/presentation/components/user-avatar.vue'
 import { useAuthenticationStore } from '../../application/authentication.store.js'
 import { useRoute } from 'vue-router'
@@ -8,15 +8,23 @@ import { BaseApi, apiErrorMessage } from '../../../shared/infrastructure/base-ap
 import { AuthenticationApi } from '../../infrastructure/authentication-api.js'
 import { useLeadsStore } from '../../../leads/application/leads.store.js'
 import { useI18n } from '../../../i18n.js'
+import { isValidPhone } from '../../../shared/infrastructure/phone-validation.js'
+import { isValidMoney, isValidRequiredText } from '../../../shared/infrastructure/form-validation.js'
 
 defineProps({ search: String })
 const store = useAuthenticationStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const tab = ref(route.query.tab === 'profile' ? 'profile' : 'users')
 watch(() => route.query.tab, value => { if (value === 'profile') tab.value = 'profile' })
 const team = computed(() => store.profile ? [store.profile, ...store.users.filter(user => user.id !== store.profile.id && user.organizationId === store.profile.organizationId)] : [])
 const draft = reactive({ name: '', company: '', quota: 0, phone: '' })
+const profileNameInput = ref(null)
+const profileCompanyInput = ref(null)
+const profilePhoneInput = ref(null)
+const profileQuotaInput = ref(null)
+const memberNameInput = ref(null)
+const tagNameInput = ref(null)
 const message = ref('')
 const saving = ref(false)
 const credentials = reactive({ currentPassword: '', newPassword: '' })
@@ -35,6 +43,16 @@ const editorError = ref('')
 const showPasswords = reactive({ current: false, next: false, member: false })
 const member = reactive({ name: '', email: '', password: '', id_role: '' })
 const tagDraft = reactive({ name: '', color: '#6366f1' })
+watch([() => draft.name, () => draft.company, () => draft.phone, () => draft.quota, () => member.name, () => tagDraft.name,
+  locale, profileNameInput, profileCompanyInput, profilePhoneInput, profileQuotaInput, memberNameInput, tagNameInput], async () => {
+  await nextTick()
+  profileNameInput.value?.setCustomValidity(isValidRequiredText(draft.name, 120) ? '' : t('invalidRequiredText', { max: 120 }))
+  profileCompanyInput.value?.setCustomValidity(isValidRequiredText(draft.company, 120) ? '' : t('invalidRequiredText', { max: 120 }))
+  profilePhoneInput.value?.setCustomValidity(isValidPhone(draft.phone) ? '' : t('invalidPhone'))
+  profileQuotaInput.value?.setCustomValidity(isValidMoney(profileQuotaInput.value.value) ? '' : t('invalidAmount'))
+  memberNameInput.value?.setCustomValidity(isValidRequiredText(member.name, 120) ? '' : t('invalidRequiredText', { max: 120 }))
+  tagNameInput.value?.setCustomValidity(isValidRequiredText(tagDraft.name, 50) ? '' : t('invalidRequiredText', { max: 50 }))
+}, { flush: 'post' })
 function roleLabel(role) { return role.systemCode === 'OWNER' ? t('directorRole') : role.systemCode === 'SELLER' ? t('sellerRole') : role.name }
 
 onMounted(() => {
@@ -46,16 +64,18 @@ watch(() => store.profile, profile => {
 }, { immediate: true })
 
 async function save() {
+  if (saving.value) return
   message.value = ''
   saving.value = true
   try {
-    await store.updateProfile({ name: draft.name.trim(), company: store.profile?.isOwner ? draft.company.trim() : undefined, quota: Number(draft.quota), phone: draft.phone.trim() })
+    await store.updateProfile({ name: draft.name.trim(), company: store.profile?.isOwner ? draft.company.trim() : undefined, quota: draft.quota, phone: draft.phone.trim() })
     await useLeadsStore().fetchContacts()
     message.value = t('profileSaved')
   } catch (error) { message.value = apiErrorMessage(error, 'profileFailed') }
   finally { saving.value = false }
 }
 async function savePassword() {
+  if (savingPassword.value) return
   passwordMessage.value = ''
   savingPassword.value = true
   try {
@@ -187,10 +207,10 @@ async function removeTag(tag) {
       </template>
       <form v-else-if="tab === 'profile'" class="settings-body profile-form form-stack" @submit.prevent="save">
         <div class="form-grid">
-          <label>{{ t('name') }}<input v-model="draft.name" required /></label>
-          <label>{{ t('company') }}<input v-model="draft.company" required :readonly="!store.profile?.isOwner" /></label>
-          <label>{{ t('phone') }}<input v-model="draft.phone" type="tel" /></label>
-          <label>{{ t('quota') }}<input v-model="draft.quota" required type="number" min="0" step="0.01" max="9999999999.99" /></label>
+          <label>{{ t('name') }}<input ref="profileNameInput" v-model="draft.name" required maxlength="120" /></label>
+          <label>{{ t('company') }}<input ref="profileCompanyInput" v-model="draft.company" required maxlength="120" :readonly="!store.profile?.isOwner" /></label>
+          <label>{{ t('phone') }}<input ref="profilePhoneInput" v-model="draft.phone" type="tel" maxlength="30" :title="t('invalidPhone')" /></label>
+          <label>{{ t('quota') }}<input ref="profileQuotaInput" v-model="draft.quota" required type="number" min="0" step="0.01" max="9999999999.99" @input="$event.target.setCustomValidity(isValidMoney($event.target.value) ? '' : t('invalidAmount'))" /></label>
         </div>
         <label>{{ t('accessEmail') }}<input :value="store.profile?.email || ''" type="email" readonly /></label>
         <p v-if="message" role="status">{{ message }}</p>
@@ -199,7 +219,7 @@ async function removeTag(tag) {
 
       <form v-if="tab === 'profile'" class="settings-body profile-form form-stack" @submit.prevent="savePassword">
         <h2>{{ t('changePassword') }}</h2>
-        <div class="form-grid"><label>{{ t('currentPassword') }}<span class="password-input"><input v-model="credentials.currentPassword" :type="showPasswords.current ? 'text' : 'password'" autocomplete="current-password" required /><button type="button" :aria-label="t(showPasswords.current ? 'hidePassword' : 'showPassword')" @click="showPasswords.current = !showPasswords.current"><span class="ui-icon" :class="showPasswords.current ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label><label>{{ t('newPassword') }}<span class="password-input"><input v-model="credentials.newPassword" :type="showPasswords.next ? 'text' : 'password'" autocomplete="new-password" minlength="8" required /><button type="button" :aria-label="t(showPasswords.next ? 'hidePassword' : 'showPassword')" @click="showPasswords.next = !showPasswords.next"><span class="ui-icon" :class="showPasswords.next ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label></div>
+        <div class="form-grid"><label>{{ t('currentPassword') }}<span class="password-input"><input v-model="credentials.currentPassword" maxlength="128" :type="showPasswords.current ? 'text' : 'password'" autocomplete="current-password" required /><button type="button" :aria-label="t(showPasswords.current ? 'hidePassword' : 'showPassword')" @click="showPasswords.current = !showPasswords.current"><span class="ui-icon" :class="showPasswords.current ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label><label>{{ t('newPassword') }}<span class="password-input"><input v-model="credentials.newPassword" maxlength="128" :type="showPasswords.next ? 'text' : 'password'" autocomplete="new-password" minlength="8" required /><button type="button" :aria-label="t(showPasswords.next ? 'hidePassword' : 'showPassword')" @click="showPasswords.next = !showPasswords.next"><span class="ui-icon" :class="showPasswords.next ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label></div>
         <p v-if="passwordMessage" role="status">{{ passwordMessage }}</p>
         <button class="button primary" type="submit" :disabled="savingPassword">{{ t(savingPassword ? 'saving' : 'changePassword') }}</button>
       </form>
@@ -208,8 +228,8 @@ async function removeTag(tag) {
   <section v-if="tab === 'users'" class="panel tag-management"><h2>{{ t('productTags') }}</h2><div class="tag-list"><span v-for="tag in tags" :key="tag.id" class="badge violet" :style="{ color: tag.color, backgroundColor: tag.color ? tag.color + '18' : undefined }"><button :disabled="!store.profile?.permissions?.manageTags" @click="openTag(tag)">{{ tag.name }}</button><button v-if="store.profile?.permissions?.manageTags" :aria-label="t('deleteTag') + ': ' + tag.name" @click="removeTag(tag)">×</button></span><button v-if="store.profile?.permissions?.manageTags" class="button secondary small" @click="openTag()">+ {{ t('createTag') }}</button></div></section>
   <AppModal v-if="editor" class="lead-modal" :title="t(editor === 'tag' ? 'productTags' : editing ? 'editUser' : 'addUser')" @close="!editorBusy && (editor = null)">
     <form @submit.prevent="saveEditor"><div class="modal-body form-stack">
-      <template v-if="editor === 'tag'"><label>{{ t('name') }}<input v-model="tagDraft.name" required /></label><label>{{ t('color') }}<input v-model="tagDraft.color" type="color" /></label></template>
-      <template v-else><label>{{ t('name') }}<input v-model="member.name" required /></label><label>{{ t('email') }}<input v-model="member.email" type="email" required /></label><label>{{ t('password') }}<span class="password-input"><input v-model="member.password" :type="showPasswords.member ? 'text' : 'password'" :required="!editing" minlength="8" autocomplete="new-password" /><button type="button" :aria-label="t(showPasswords.member ? 'hidePassword' : 'showPassword')" @click="showPasswords.member = !showPasswords.member"><span class="ui-icon" :class="showPasswords.member ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label><label>{{ t('role') }}<select v-model="member.id_role" required><option v-for="role in roles" :key="role.id" :value="role.id">{{ roleLabel(role) }}</option></select></label></template>
+      <template v-if="editor === 'tag'"><label>{{ t('name') }}<input ref="tagNameInput" v-model="tagDraft.name" required maxlength="50" /></label><label>{{ t('color') }}<input v-model="tagDraft.color" type="color" /></label></template>
+      <template v-else><label>{{ t('name') }}<input ref="memberNameInput" v-model="member.name" required maxlength="120" /></label><label>{{ t('email') }}<input v-model="member.email" type="email" required maxlength="120" /></label><label>{{ t('password') }}<span class="password-input"><input v-model="member.password" maxlength="128" :type="showPasswords.member ? 'text' : 'password'" :required="!editing" minlength="8" autocomplete="new-password" /><button type="button" :aria-label="t(showPasswords.member ? 'hidePassword' : 'showPassword')" @click="showPasswords.member = !showPasswords.member"><span class="ui-icon" :class="showPasswords.member ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label><label>{{ t('role') }}<select v-model="member.id_role" required><option v-for="role in roles" :key="role.id" :value="role.id">{{ roleLabel(role) }}</option></select></label></template>
       <p v-if="editorError" class="error-message" role="alert">{{ editorError }}</p>
     </div><div class="modal-footer"><button type="button" class="button secondary" :disabled="editorBusy" @click="editor = null">{{ t('cancel') }}</button><button type="submit" class="button primary" :disabled="editorBusy">{{ t(editorBusy ? 'saving' : 'save') }}</button></div></form>
   </AppModal>

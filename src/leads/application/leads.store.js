@@ -43,9 +43,9 @@ const store = (() => {
         if (!authStore.profile?.id) throw new Error(t('signInFirst'));
         if (values.id && !contacts.value.some(c => c.id === values.id)) throw new Error(t('noOwner'));
         const isNew = !values.id;
-        const payload = { ...values, ownerId: values.ownerId || authStore.profile.id, owner: values.owner || authStore.profile.name, type: values.type === 'customer' ? 'customer' : 'lead', value: Number(values.value) };
-        const request = isNew ? api.createContact(payload) : api.updateContact(values.id, payload);
+        const payload = { ...values, ownerId: values.ownerId || authStore.profile.id, owner: values.owner || authStore.profile.name, type: values.type === 'customer' ? 'customer' : 'lead' };
         try {
+            const request = isNew ? api.createContact(payload) : api.updateContact(values.id, payload);
             const res = await request;
             const saved = ContactAssembler.toEntityFromResource(res.data);
             if (isNew) contacts.value.unshift(saved);

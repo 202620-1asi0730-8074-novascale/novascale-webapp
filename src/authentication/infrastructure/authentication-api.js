@@ -1,4 +1,5 @@
 import { BaseApi } from '../../shared/infrastructure/base-api.js'
+import { parseMoney } from '../../shared/infrastructure/form-validation.js'
 
 function roleResource(role) {
     return { ...role, name: role.systemCode === 'OWNER' ? 'Director de ventas' : role.systemCode === 'SELLER' ? 'Vendedor' : role.name }
@@ -48,7 +49,7 @@ export class AuthenticationApi extends BaseApi {
     changePassword(currentPassword, newPassword) { return this.http.put('/authentication/password', { currentPassword, newPassword }) }
     async updateUser(id, resource) {
         await this.http.put('/authentication/profile', {
-            fullName: resource.name, phone: resource.phone || '', quota: Number(resource.quota), company: resource.company
+            fullName: resource.name, phone: resource.phone || '', quota: parseMoney(resource.quota), company: resource.company
         })
         return this.getProfile()
     }

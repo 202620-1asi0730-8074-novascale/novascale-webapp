@@ -1,10 +1,11 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { apiErrorMessage } from '../../../shared/infrastructure/base-api.js'
 import { useRoute, useRouter } from 'vue-router'
 import UserAvatar from '../../../shared/presentation/components/user-avatar.vue'
 import { useAuthenticationStore } from '../../application/authentication.store.js'
 import { useI18n } from '../../../i18n.js'
+import { isValidRequiredText } from '../../../shared/infrastructure/form-validation.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,6 +15,12 @@ const { locale, setLocale, t } = useI18n()
 const signup = computed(() => route.name === 'signup')
 const forgot = computed(() => route.name === 'forgot-password')
 const form = reactive({ name: '', company: '', email: '', password: '' })
+const nameInput = ref(null)
+const companyInput = ref(null)
+watch([() => form.name, () => form.company, locale, nameInput, companyInput], () => {
+  nameInput.value?.setCustomValidity(isValidRequiredText(form.name, 120) ? '' : t('invalidRequiredText', { max: 120 }))
+  companyInput.value?.setCustomValidity(isValidRequiredText(form.company, 120) ? '' : t('invalidRequiredText', { max: 120 }))
+}, { flush: 'post' })
 const errorMessage = ref('')
 const busy = ref(false)
 const showPassword = ref(false)
@@ -21,6 +28,7 @@ const recoveryEmail = ref('')
 const recoveryRequested = ref(false)
 
 async function submit() {
+  if (busy.value) return
   errorMessage.value = ''
   busy.value = true
   try {
@@ -43,7 +51,7 @@ async function submit() {
       <h1>{{ t('recovery') }}</h1>
       <p>{{ t('recoveryIntro') }}</p>
       <form class="recovery-form form-stack" @submit.prevent="recoveryRequested = true">
-        <label>{{ t('email') }}<input v-model="recoveryEmail" type="email" required placeholder="name@company.com" /></label>
+        <label>{{ t('email') }}<input v-model="recoveryEmail" maxlength="120" type="email" required placeholder="name@company.com" /></label>
         <button class="button primary full-width" type="submit">{{ t('requestReset') }}</button>
       </form>
       <p v-if="recoveryRequested" class="info-box" role="status">{{ t('recoveryBody') }}</p>
@@ -68,10 +76,10 @@ async function submit() {
         <h1>{{ t(signup ? 'createAccount' : 'welcome') }}</h1>
         <p class="auth-description">{{ t(signup ? 'signupDescription' : 'authDescription') }}</p>
         <form class="form-stack" @submit.prevent="submit">
-          <label v-if="signup">{{ t('name') }}<input v-model="form.name" required autocomplete="name" /></label>
-          <label v-if="signup">{{ t('company') }}<input v-model="form.company" required autocomplete="organization" /></label>
-          <label>{{ t('email') }}<input v-model="form.email" required type="email" autocomplete="email" /></label>
-          <label>{{ t('password') }}<span class="password-input"><input v-model="form.password" :type="showPassword ? 'text' : 'password'" required minlength="8" :autocomplete="signup ? 'new-password' : 'current-password'" :placeholder="signup ? t('passwordHint') : ''" /><button type="button" :aria-label="t(showPassword ? 'hidePassword' : 'showPassword')" :aria-pressed="showPassword" @click="showPassword = !showPassword"><span class="ui-icon" :class="showPassword ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label>
+          <label v-if="signup">{{ t('name') }}<input ref="nameInput" v-model="form.name" required maxlength="120" autocomplete="name" /></label>
+          <label v-if="signup">{{ t('company') }}<input ref="companyInput" v-model="form.company" required maxlength="120" autocomplete="organization" /></label>
+          <label>{{ t('email') }}<input v-model="form.email" required type="email" maxlength="120" autocomplete="email" /></label>
+          <label>{{ t('password') }}<span class="password-input"><input v-model="form.password" maxlength="128" :type="showPassword ? 'text' : 'password'" required :minlength="signup ? 8 : 1" :autocomplete="signup ? 'new-password' : 'current-password'" :placeholder="signup ? t('passwordHint') : ''" /><button type="button" :aria-label="t(showPassword ? 'hidePassword' : 'showPassword')" :aria-pressed="showPassword" @click="showPassword = !showPassword"><span class="ui-icon" :class="showPassword ? 'icon-eye' : 'icon-eye-closed'" aria-hidden="true"></span></button></span></label>
           <div v-if="!signup" class="auth-form-options"><router-link class="text-link" to="/forgot-password">{{ t('forgotPassword') }}</router-link></div>
           <p v-if="errorMessage" class="auth-error" role="alert">{{ errorMessage }}</p>
           <button class="button primary full-width" type="submit" :disabled="busy">{{ busy ? t('wait') : t(signup ? 'createSpace' : 'login') }}</button>
