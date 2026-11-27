@@ -1,5 +1,6 @@
 import { BaseApi, utcDate } from '../../shared/infrastructure/base-api.js'
 import { currentUserId } from '../../authentication/infrastructure/session.js'
+import { parseMoney } from '../../shared/infrastructure/form-validation.js'
 
 function contactResource(contact) {
     return {
@@ -15,7 +16,7 @@ function payload(resource) {
         fullName: resource.name, company: resource.company, email: resource.email || '', phone: resource.phone || '',
         contactType: resource.type === 'customer' ? 'CUSTOMER' : 'LEAD', leadStatus: resource.stage.toUpperCase(),
         source: resource.source || '', userId: Number(resource.ownerId || currentUserId()),
-        estimatedAmount: Number(resource.value), tags: resource.tags || []
+        estimatedAmount: parseMoney(resource.value), tags: resource.tags || []
     }
 }
 export class LeadsApi extends BaseApi {

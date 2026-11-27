@@ -1,15 +1,34 @@
 <script setup>
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, nextTick } from 'vue'
 import AppModal from '../../../shared/presentation/components/app-modal.vue'
 import { useLeadsStore } from '../../application/leads.store.js'
 import { useI18n } from '../../../i18n.js'
+import { isValidPhone } from '../../../shared/infrastructure/phone-validation.js'
+import { isValidMoney, isValidRequiredText, areValidContactTags, contactTags } from '../../../shared/infrastructure/form-validation.js'
 
 const store = useLeadsStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const phoneInput = ref(null)
+const nameInput = ref(null)
+const companyInput = ref(null)
+const amountInput = ref(null)
+const tagsInput = ref(null)
 const saving = ref(false)
 const tags = ref('')
 const confirmingDelete = ref(false)
 const form = reactive({ id: null, name: '', company: '', email: '', phone: '', source: '', value: 0, stage: 'new', type: 'lead' })
+
+watch([() => form.phone, locale, phoneInput], () => {
+  phoneInput.value?.setCustomValidity(isValidPhone(form.phone) ? '' : t('invalidPhone'))
+}, { flush: 'post' })
+
+watch([() => form.name, () => form.company, () => form.value, tags, locale, nameInput, companyInput, amountInput, tagsInput], async () => {
+  await nextTick()
+  nameInput.value?.setCustomValidity(isValidRequiredText(form.name, 120) ? '' : t('invalidRequiredText', { max: 120 }))
+  companyInput.value?.setCustomValidity(isValidRequiredText(form.company, 120) ? '' : t('invalidRequiredText', { max: 120 }))
+  amountInput.value?.setCustomValidity(isValidMoney(amountInput.value.value) ? '' : t('invalidAmount'))
+  tagsInput.value?.setCustomValidity(areValidContactTags(tags.value) ? '' : t('invalidContactTags'))
+}, { flush: 'post' })
 
 watch(() => store.leadEditor.open, (isOpen) => {
   if (isOpen) {
@@ -23,7 +42,7 @@ watch(() => store.leadEditor.open, (isOpen) => {
 async function submit() {
   if (saving.value) return
   saving.value = true
-  try { await store.saveContact({ ...form, tags: [...new Set(tags.value.split(',').map(tag => tag.trim()).filter(Boolean))] }) } catch {}
+  try { await store.saveContact({ ...form, tags: contactTags(tags.value) }) } catch {}
   finally { saving.value = false }
 }
 async function remove() {
@@ -48,16 +67,16 @@ function close() {
     </div>
     <form v-else @submit.prevent="submit">
       <div class="modal-body form-stack">
-        <label>{{ t('name') }}<input v-model="form.name" required :placeholder="t('name')" /></label>
-        <label>{{ t('company') }}<input v-model="form.company" required :placeholder="t('company')" /></label>
+        <label>{{ t('name') }}<input ref="nameInput" v-model="form.name" required maxlength="120" :placeholder="t('name')" /></label>
+        <label>{{ t('company') }}<input ref="companyInput" v-model="form.company" required maxlength="120" :placeholder="t('company')" /></label>
         <label class="lead-type-field">{{ t('contactType') }}<select v-model="form.type"><option value="lead">{{ t('lead') }}</option><option value="customer">{{ t('customer') }}</option></select></label>
         <div class="form-grid">
-          <label>{{ t('email') }}<input v-model="form.email" required type="email" placeholder="name@company.com" /></label>
-          <label class="lead-phone-field">{{ t('phone') }}<input v-model="form.phone" type="tel" /></label>
+          <label>{{ t('email') }}<input v-model="form.email" required type="email" maxlength="120" placeholder="name@company.com" /></label>
+          <label class="lead-phone-field">{{ t('phone') }}<input ref="phoneInput" v-model="form.phone" type="tel" maxlength="30" :title="t('invalidPhone')" /></label>
         </div>
         <label class="lead-source-field">{{ t('leadSource') }}<select v-model="form.source"><option value="">{{ t('selectSource') }}</option><option value="web">{{ t('sourceWeb') }}</option><option value="referral">{{ t('sourceReferral') }}</option><option value="other">{{ t('sourceOther') }}</option></select></label>
-        <label>{{ t('contactTags') }}<input v-model="tags" :placeholder="t('contactTagsHint')" /></label>
-        <label>{{ t('estimatedValue') }}<input v-model="form.value" type="number" min="0" max="9999999999.99" step="0.01" required placeholder="0.00" /></label>
+        <label>{{ t('contactTags') }}<input ref="tagsInput" v-model="tags" :placeholder="t('contactTagsHint')" /></label>
+        <label>{{ t('estimatedValue') }}<input ref="amountInput" v-model="form.value" type="number" min="0" max="9999999999.99" step="0.01" required placeholder="0.00" @input="$event.target.setCustomValidity(isValidMoney($event.target.value) ? '' : t('invalidAmount'))" /></label>
         <label>{{ t('stage') }}<select v-model="form.stage"><option value="new">{{ t('newStage') }}</option><option value="contacted">{{ t('contactedStage') }}</option><option value="proposal">{{ t('proposalStage') }}</option><option value="won">{{ t('wonStage') }}</option></select></label>
       </div>
       <div class="modal-footer">

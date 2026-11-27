@@ -4,8 +4,9 @@ import { sessionKey, clearSession } from '../../authentication/infrastructure/se
 
 export function apiErrorMessage(error, fallback = 'apiError') {
     const { t } = useI18n()
+    if (error instanceof RangeError && error.message === 'InvalidAmount') return t('invalidAmount')
     const body = error.response?.data
-    if (error.response?.status < 500 && body && typeof body === 'object') {
+    if ((error.response?.status < 500 || (typeof body?.code === 'string' && body.code.startsWith('Gmail'))) && body && typeof body === 'object') {
         const messages = Object.values(body.errors || {}).flat().filter(message => typeof message === 'string')
         if (messages.length) return [...new Set(messages)].join(' ')
         if (typeof body.title === 'string') return body.title

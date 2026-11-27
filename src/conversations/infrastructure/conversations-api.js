@@ -4,10 +4,15 @@ function messageResource(message, contactId) {
     return {
         id: message.id, text: message.content || '', sender_type: message.senderType.toLowerCase(),
         sent_at: utcDate(message.sentAt), contactId,
+        delivery_status: message.deliveryStatus || 'LOCAL',
         attachments: message.attachments.map(file => ({ name: file.name, type: file.contentType, data: file.data }))
     }
 }
 export class ConversationsApi extends BaseApi {
+    getGmailStatus() { return this.http.get('/integrations/gmail/status') }
+    connectGmail() { return this.http.post('/integrations/gmail/connect', {}, { withCredentials: true }) }
+    disconnectGmail() { return this.http.delete('/integrations/gmail/connection') }
+    syncGmail(contactId) { return this.http.post('/integrations/gmail/contacts/' + encodeURIComponent(contactId) + '/sync', {}, { timeout: 120000 }) }
     async getMessages(contactId) {
         const { data: conversations } = await this.getAllPages('/conversations', { contactId })
         const responses = await Promise.all(conversations.map(conversation => this.getAllPages('/messages', { conversationId: conversation.id })))
@@ -17,15 +22,10 @@ export class ConversationsApi extends BaseApi {
         return { status: 200, data: messages.map(message => messageResource(message, contactId)), pendingSince: pending[0] || null }
     }
     async sendMessage(payload) {
-        const { data: contact } = await this.http.get('/contacts/' + encodeURIComponent(payload.contactId))
-        const { data: conversations } = await this.getAllPages('/conversations', { contactId: contact.id, status: 'OPEN' })
-        const conversation = conversations[0] || (await this.http.post('/conversations', {
-            channel: 'SIMULATED', status: 'OPEN', contactId: contact.id, userId: contact.userId
-        })).data
-        const response = await this.http.post('/messages', {
-            senderType: 'OUT', content: payload.text.trim(), conversationId: conversation.id,
+        const response = await this.http.post('/integrations/gmail/contacts/' + encodeURIComponent(payload.contactId) + '/send', {
+            requestId: payload.requestId, content: payload.text.trim(),
             attachments: (payload.attachments || []).map(file => ({ name: file.name, contentType: file.type, data: file.data }))
-        })
-        return { ...response, data: messageResource(response.data, contact.id) }
+        }, { timeout: 120000 })
+        return { ...response, data: messageResource(response.data, payload.contactId) }
     }
 }
